@@ -21,13 +21,14 @@ class FrontPageHandler(tornado.web.RequestHandler):
         else:
             self.set_header("Content-Type", "image/png")
             upc = upc.encode('ascii','ignore')
-            if len(upc) == 12:
+            if len(upc) == 11 or len(upc) == 12:
                 b = barcode('upca',upc,options=dict(includetext=True), scale=2, margin=1)
-                fakefile = StringIO.StringIO()
-                b.save(self,format='PNG')
+            elif len(upc) > 12 and len(upc) < 15:
+                b = barcode('ean13',upc,options=dict(includetext=True), scale=2, margin=1) 
             else:
-                errorimg = Image.open('static/error.png')
-                errorimg.save(self,format='PNG')
+                b = Image.open('static/error.png')
+
+            b.save(self,format='PNG')
         #self.redirect('/static/error.png') 
 
 
