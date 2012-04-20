@@ -10,26 +10,22 @@ import tornado.web
 import tornado.escape
 import socket,os,re
 import json
-from elaphe import barcode
-from elaphe.upc import UpcA
-import StringIO
+from barcode.writer import ImageWriter
+import barcode
+import ImageFont
+from cStringIO import StringIO
 
 class FrontPageHandler(tornado.web.RequestHandler):
     def get(self,upc=None):
         if upc == None:
             self.write("Please provide a barcode number")
         else:
-            self.set_header("Content-Type", "image/png")
-            upc = upc.encode('ascii','ignore')
-            if len(upc) == 12:
-                b = barcode('upca',upc,options=dict(includetext=True), scale=2, margin=1)
-                fakefile = StringIO.StringIO()
-                b.save(self,format='PNG')
-            else:
-                errorimg = Image.open('static/error.png')
-                errorimg.save(self,format='PNG')
-        #self.redirect('/static/error.png') 
-
+            writer = ImageWriter()
+            writer.set_options(options={'font_size':96})
+            writer.font_size = 64
+            upcimg = barcode.get_barcode('upc',upc,writer=writer)
+            upcimg.save('static/' + upc)
+            self.redirect('/static/' + upc + '.png')
 
 def main():
     tornado.options.parse_command_line()
