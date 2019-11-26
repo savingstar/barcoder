@@ -30,18 +30,21 @@ class FrontPageHandler(tornado.web.RequestHandler):
             if len(upc) == 11 or len(upc) == 12:
                 b = barcode('upca',upc,options=dict(includetext=True), scale=2, margin=1)
             elif len(upc) > 12 and len(upc) < 14:
-                b = barcode('ean13',upc,options=dict(includetext=True), scale=2, margin=1) 
+                b = barcode('ean13',upc,options=dict(includetext=True), scale=2, margin=1)
             elif len(upc) == 16:
-                b = barcode('ean13',upc[0:13],options=dict(includetext=True), scale=2, margin=1) 
+                b = barcode('ean13',upc[0:13],options=dict(includetext=True), scale=2, margin=1)
             elif len(upc) == 7:
-                b = barcode('upca',"41" + upc + "09",options=dict(includetext=True), scale=2, margin=1) 
+                b = barcode('upca',"41" + upc + "09",options=dict(includetext=True), scale=2, margin=1)
+            elif len(upc) == 10:
+                # 10-digit (phone numbers) should show an image
+                b = Image.open('static/phone_number.png')
             else:
                 b = Image.open('static/error.png')
-                f = open('errorfile','a')	
+                f = open('errorfile','a')
                 f.write(self.request.uri + ',' + self.request.query)
                 f.close()
             b.save(self,format='PNG')
-        #self.redirect('/static/error.png') 
+        #self.redirect('/static/error.png')
 
 
 def main():
